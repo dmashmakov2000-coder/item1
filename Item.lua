@@ -4,18 +4,18 @@ local samp = require('samp.events')
 local effil = require('effil')
 local inicfg = require('inicfg')
 local ffi = require('ffi')
-local SCRIPT_VERSION = "1.1.1" -- Г’ГҐГЄГіГ№Г Гї ГўГҐГ°Г±ГЁГї ГўГ ГёГҐГЈГ® Г±ГЄГ°ГЁГЇГІГ 
+local SCRIPT_VERSION = "0.0.1" -- Текущая версия вашего скрипта
 
 local imgui = require('mimgui')
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 
--- ГЏГ°ГҐГ¤ГЇГ®Г«Г ГЈГ ГҐГ¬, Г·ГІГ® ГЁГ¬Гї ГґГ Г©Г«Г  Г±ГЄГ°ГЁГЇГІГ  - Item.lua
+-- Предполагаем, что имя файла скрипта - Item.lua
 local SCRIPT_CONFIG_NAME = 'Item'
 local SCRIPT_CONFIG_FILENAME = SCRIPT_CONFIG_NAME .. '.ini'
 
--- Г„Г®ГЎГ ГўГ«ГїГҐГ¬ Г±ГЇГЁГ±ГЄГЁ ГЇГ°ГҐГ¤Г¬ГҐГІГ®Гў ГЁГ§ ГўГІГ®Г°Г®ГЈГ® Г±ГЄГ°ГЁГЇГІГ 
+-- Добавляем списки предметов из второго скрипта
 local items = {
     1811,
     555,
@@ -30,17 +30,17 @@ local items = {
 
 local items_name = {
     [1811] = "Bitcoin (BTC)",
-    [555] = "ГЃГ°Г®Г­Г§Г®ГўГ Гї Г°ГіГ«ГҐГІГЄГ ",
-    [1425] = "ГЏГ«Г ГІГЁГ­Г®ГўГ Гї Г°ГіГ«ГҐГІГЄГ ",
-    [522] = "Г‘ГҐГ¬ГҐГ©Г­Г»Г© ГІГ Г«Г®Г­",
-	[4344] = "Г’Г Г«Г®Г­ +1 EXP ",
-	[5991] = "ГѓГ°ГіГ­ГІ",
-    [1146] = "ГѓГ°Г Г¦Г¤Г Г­Г±ГЄГЁГ© ГІГ Г«Г®Г­",
-	[731] = "ГЂz-Coins",
-	[9726] = "Г‹Г®ГІГҐГ°ГҐГ©Г­Г»Г© ГЎГЁГ«ГҐГІ 2ГЄ26",
+    [555] = "Бронзовая рулетка",
+    [1425] = "Платиновая рулетка",
+    [522] = "Семейный талон",
+	[4344] = "Талон +1 EXP ",
+	[5991] = "Грунт",
+    [1146] = "Гражданский талон",
+	[731] = "Аz-Coins",
+	[9726] = "Лотерейный билет 2к26",
 }
 
--- Г”ГіГ­ГЄГ¶ГЁГї Г¤Г«Гї ГЇГ°Г®ГўГҐГ°ГЄГЁ Г­Г Г«ГЁГ·ГЁГї ГЅГ«ГҐГ¬ГҐГ­ГІГ  Гў ГІГ ГЎГ«ГЁГ¶ГҐ
+-- Функция для проверки наличия элемента в таблице
 local function tableIncludes(self, value)
     for _, v in pairs(self) do
         if v == value then
@@ -56,7 +56,7 @@ local cfg = inicfg.load({
         token = '',
         itemAdding = false
     }
-}, SCRIPT_CONFIG_NAME) -- Г€Г§Г¬ГҐГ­ГҐГ­Г® Г­Г  SCRIPT_CONFIG_NAME
+}, SCRIPT_CONFIG_NAME) -- Изменено на SCRIPT_CONFIG_NAME
 
 local chat = imgui.new.char[128](tostring(cfg.config.chat))
 local token = imgui.new.char[128](tostring(cfg.config.token))
@@ -67,7 +67,7 @@ local window = imgui.new.bool(false)
 
 function main()
     while not isSampAvailable() do wait(0) end
-    sampAddChatMessage('[telegram truck] {ffffff}ГЂГЄГІГЁГўГ Г¶ГЁГї: /item', 0x3083ff)
+    sampAddChatMessage('[telegram truck] {ffffff}Активация: /item', 0x3083ff)
     sampRegisterChatCommand('item', function() window[0] = not window[0] end)
     wait(-1)
 end
@@ -84,18 +84,18 @@ local newFrame = imgui.OnFrame(
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, resY / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
         imgui.Begin('telegram truck', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
-        if imgui.InputText(u8('Г€Г„ Г—Г ГІ'), chat, ffi.sizeof(chat), imgui.InputTextFlags.Password) then
+        if imgui.InputText(u8('ИД Чат'), chat, ffi.sizeof(chat), imgui.InputTextFlags.Password) then
             cfg.config.chat = ffi.string(chat)
-            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Г€Г§Г¬ГҐГ­ГҐГ­Г® Г­Г  SCRIPT_CONFIG_FILENAME
+            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
         end
-        if imgui.InputText(u8('Г’Г®ГЄГҐГ­'), token, ffi.sizeof(token), imgui.InputTextFlags.Password) then
+        if imgui.InputText(u8('Токен'), token, ffi.sizeof(token), imgui.InputTextFlags.Password) then
             cfg.config.token = ffi.string(token)
-            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Г€Г§Г¬ГҐГ­ГҐГ­Г® Г­Г  SCRIPT_CONFIG_FILENAME
+            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
         end
 
-        if imgui.Checkbox(u8('Г„Г®ГЎГ ГўГ«ГҐГ­ГЁГҐ ГЇГ°ГҐГ¤Г¬ГҐГІГ '), itemAdding) then
+        if imgui.Checkbox(u8('Добавление предмета'), itemAdding) then
             cfg.config.itemAdding = itemAdding[0]
-            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Г€Г§Г¬ГҐГ­ГҐГ­Г® Г­Г  SCRIPT_CONFIG_FILENAME
+            inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
         end
         imgui.End()
     end
@@ -103,7 +103,7 @@ local newFrame = imgui.OnFrame(
 
 local effilTelegramSendMessage = effil.thread(function(text, chatID, token)
     local requests = require('requests')
-    -- Г€Г±ГЇГ®Г«ГјГ§ГіГҐГ¬ url_encode Г¤Г«Гї ГЇГ°Г ГўГЁГ«ГјГ­Г®Г© ГЇГҐГ°ГҐГ¤Г Г·ГЁ Г¤Г Г­Г­Г»Гµ
+    -- Используем url_encode для правильной передачи данных
     requests.post(('https://api.telegram.org/bot%s/sendMessage'):format(token), {
         params = {
             text = text,
@@ -112,7 +112,7 @@ local effilTelegramSendMessage = effil.thread(function(text, chatID, token)
     })
 end)
 
--- Г”ГіГ­ГЄГ¶ГЁГї url_encode ГЁГ§ ГўГІГ®Г°Г®ГЈГ® Г±ГЄГ°ГЁГЇГІГ 
+-- Функция url_encode из второго скрипта
 function url_encode(text)
     local text = string.gsub(text, "([^%w-_ %.~=])", function(c)
         return string.format("%%%02X", string.byte(c))
@@ -121,50 +121,50 @@ function url_encode(text)
 end
 
 function sendTelegramMessage(text)
-    -- ГЏГ°Г®ГўГҐГ°ГїГҐГ¬, Г·ГІГ® Г·Г ГІ ID ГЁ ГІГ®ГЄГҐГ­ Г­ГҐ ГЇГіГ±ГІГ»ГҐ
+    -- Проверяем, что чат ID и токен не пустые
     local chat_id_str = ffi.string(chat)
     local token_str = ffi.string(token)
 
     if chat_id_str == '' or token_str == '' then
-        print('[telegram truck] ГЋГёГЁГЎГЄГ : ID Г·Г ГІГ  ГЁГ«ГЁ ГІГ®ГЄГҐГ­ Telegram Г­ГҐ ГіГ±ГІГ Г­Г®ГўГ«ГҐГ­Г».')
+        print('[telegram truck] Ошибка: ID чата или токен Telegram не установлены.')
         return
     end
 
-    local text_to_send = text:gsub('{......}', '') -- Г“ГЎГЁГ°Г ГҐГ¬ Г¶ГўГҐГІГ®ГўГ»ГҐ ГЄГ®Г¤Г», ГҐГ±Г«ГЁ Г®Г­ГЁ ГҐГ±ГІГј
+    local text_to_send = text:gsub('{......}', '') -- Убираем цветовые коды, если они есть
     effilTelegramSendMessage(url_encode(u8(text_to_send)), chat_id_str, token_str)
 end
 
 function samp.onServerMessage(color, text)
-    -- ГЏГ°Г®ГўГҐГ°ГїГҐГ¬, ГўГЄГ«ГѕГ·ГҐГ­Г® Г«ГЁ Г¤Г®ГЎГ ГўГ«ГҐГ­ГЁГҐ ГЇГ°ГҐГ¤Г¬ГҐГІГ®Гў ГЁ Г±Г®ГўГЇГ Г¤Г ГҐГІ Г«ГЁ Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ
-    if color == -65281 and text:find("^Г‚Г Г¬ ГЎГ»Г« Г¤Г®ГЎГ ГўГ«ГҐГ­ ГЇГ°ГҐГ¤Г¬ГҐГІ .+%. ГЋГІГЄГ°Г®Г©ГІГҐ ГЁГ­ГўГҐГ­ГІГ Г°Гј, ГЁГ±ГЇГ®Г«ГјГ§ГіГ©ГІГҐ ГЄГ«Г ГўГЁГёГі 'Y' ГЁГ«ГЁ /invent$") and itemAdding[0] then
-        -- Г€Г§ГўГ«ГҐГЄГ ГҐГ¬ ID ГЇГ°ГҐГ¤Г¬ГҐГІГ  ГЁГ§ Г±Г®Г®ГЎГ№ГҐГ­ГЁГї
-        local item_str = text:match("Г‚Г Г¬ ГЎГ»Г« Г¤Г®ГЎГ ГўГ«ГҐГ­ ГЇГ°ГҐГ¤Г¬ГҐГІ (.+)%. ГЋГІГЄГ°Г®Г©ГІГҐ ГЁГ­ГўГҐГ­ГІГ Г°Гј, ГЁГ±ГЇГ®Г«ГјГ§ГіГ©ГІГҐ ГЄГ«Г ГўГЁГёГі 'Y' ГЁГ«ГЁ /invent")
-        local itemId = tonumber(item_str:match(":item(%d+):")) -- ГЏГ°ГҐГ¤ГЇГ®Г«Г ГЈГ ГҐГ¬ ГґГ®Г°Г¬Г ГІ ":item<ID>:"
+    -- Проверяем, включено ли добавление предметов и совпадает ли сообщение
+    if color == -65281 and text:find("^Вам был добавлен предмет .+%. Откройте инвентарь, используйте клавишу 'Y' или /invent$") and itemAdding[0] then
+        -- Извлекаем ID предмета из сообщения
+        local item_str = text:match("Вам был добавлен предмет (.+)%. Откройте инвентарь, используйте клавишу 'Y' или /invent")
+        local itemId = tonumber(item_str:match(":item(%d+):")) -- Предполагаем формат ":item<ID>:"
 
         if itemId then
             if tableIncludes(items, itemId) then
-                -- Г…Г±Г«ГЁ ГЇГ°ГҐГ¤Г¬ГҐГІ ГҐГ±ГІГј Гў Г­Г ГёГҐГ¬ Г±ГЇГЁГ±ГЄГҐ
+                -- Если предмет есть в нашем списке
                 sendTelegramMessage(items_name[itemId])
             else
-                -- Г…Г±Г«ГЁ ГЇГ°ГҐГ¤Г¬ГҐГІГ  Г­ГҐГІ Гў Г±ГЇГЁГ±ГЄГҐ, Г®ГІГЇГ°Г ГўГ«ГїГҐГ¬ ГҐГЈГ® ID Г± ГЇГ°Г®Г±ГјГЎГ®Г© Г¤Г®ГЎГ ГўГЁГІГј
-                sendTelegramMessage("ГЏГ®Г«ГіГ·ГҐГ­ Г­ГҐГЁГ§ГўГҐГ±ГІГ­Г»Г© ГЇГ°ГҐГ¤Г¬ГҐГІ. ID: " .. itemId .. ". ГЏГ®Г¦Г Г«ГіГ©Г±ГІГ , Г¤Г®ГЎГ ГўГјГІГҐ ГҐГЈГ® Гў Г±ГЇГЁГ±Г®ГЄ.")
+                -- Если предмета нет в списке, отправляем его ID с просьбой добавить
+                sendTelegramMessage("Получен неизвестный предмет. ID: " .. itemId .. ". Пожалуйста, добавьте его в список.")
             end
         else
-            -- Г…Г±Г«ГЁ Г­ГҐ ГіГ¤Г Г«Г®Г±Гј ГЁГ§ГўГ«ГҐГ·Гј ID ГЇГ°ГҐГ¤Г¬ГҐГІГ  (Г­ГҐГ®Г¦ГЁГ¤Г Г­Г­Г»Г© ГґГ®Г°Г¬Г ГІ Г±Г®Г®ГЎГ№ГҐГ­ГЁГї)
-            sendTelegramMessage("ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г°Г Г±ГЇГ®Г§Г­Г ГІГј ID ГЇГ®Г«ГіГ·ГҐГ­Г­Г®ГЈГ® ГЇГ°ГҐГ¤Г¬ГҐГІГ . Г‘Г®Г®ГЎГ№ГҐГ­ГЁГҐ: " .. text)
+            -- Если не удалось извлечь ID предмета (неожиданный формат сообщения)
+            sendTelegramMessage("Не удалось распознать ID полученного предмета. Сообщение: " .. text)
         end
     end
 end
 
 
 -- ======================================================================
--- ГЂГ‚Г’ГЋГЋГЃГЌГЋГ‚Г‹Г…ГЌГ€Г…
+-- АВТООБНОВЛЕНИЕ
 -- ======================================================================
 
-local UPDATE_URL = "https://github.com/dmashmakov2000-coder/item1/raw/refs/heads/main/Item.lua"
+local UPDATE_URL = "https://raw.githubusercontent.com/dmashmakov2000-coder/item1/main/Item.lua"
 local current_version = SCRIPT_VERSION
 
--- Г”ГіГ­ГЄГ¶ГЁГї Г¤Г«Гї ГЇГ®Г«ГіГ·ГҐГ­ГЁГї ГІГҐГЄГіГ№ГҐГ© ГўГҐГ°Г±ГЁГЁ Г± GitHub
+-- Функция для получения текущей версии с GitHub
 local function checkForUpdates()
     local requests = require('requests')
     local response, status, _ = requests.get(UPDATE_URL)
@@ -174,60 +174,59 @@ local function checkForUpdates()
         local remote_version = remote_script_content:match('local SCRIPT_VERSION = "(.-)"')
 
         if remote_version and remote_version ~= current_version then
-            sampAddChatMessage(string.format('[Item] {ffff00}Г„Г®Г±ГІГіГЇГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ! {ffffff}Г’ГҐГЄГіГ№Г Гї ГўГҐГ°Г±ГЁГї: %s, ГЌГ®ГўГ Гї ГўГҐГ°Г±ГЁГї: %s', current_version, remote_version), 0xFFFFFF)
-            return remote_script_content -- Г‚Г®Г§ГўГ°Г Г№Г ГҐГ¬ Г±Г®Г¤ГҐГ°Г¦ГЁГ¬Г®ГҐ Г­Г®ГўГ®ГЈГ® Г±ГЄГ°ГЁГЇГІГ 
+            sampAddChatMessage(string.format('[Item] {ffff00}Доступно обновление! {ffffff}Текущая версия: %s, Новая версия: %s', current_version, remote_version), 0xFFFFFF)
+            return remote_script_content -- Возвращаем содержимое нового скрипта
         end
     else
-        sampAddChatMessage(string.format('[Item] {ff0000}ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ ГЇГ°Г®ГўГҐГ°ГЄГҐ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГ©. ГЉГ®Г¤: %s', status), 0xFFFFFF)
+        sampAddChatMessage(string.format('[Item] {ff0000}Ошибка при проверке обновлений. Код: %s', status), 0xFFFFFF)
     end
     return nil
 end
 
--- Г”ГіГ­ГЄГ¶ГЁГї Г¤Г«Гї Г±ГЄГ Г·ГЁГўГ Г­ГЁГї ГЁ Г§Г Г¬ГҐГ­Г» ГґГ Г©Г«Г  Г±ГЄГ°ГЁГЇГІГ 
+-- Функция для скачивания и замены файла скрипта
 local function downloadAndUpdate(new_script_content)
-    local script_path = thisScript().path -- ГЃГ®Г«ГҐГҐ Г­Г Г¤ГҐГ¦Г­Г»Г© Г±ГЇГ®Г±Г®ГЎ ГЇГ®Г«ГіГ·ГЁГІГј ГЇГіГІГј ГЄ Г±ГЄГ°ГЁГЇГІГі
+    local script_path = thisScript().path -- Более надежный способ получить путь к скрипту
 
     local file = io.open(script_path, "w")
     if file then
         file:write(new_script_content)
         file:close()
-        sampAddChatMessage(string.format('[Item] {00ff00}Г‘ГЄГ°ГЁГЇГІ ГіГ±ГЇГҐГёГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ Г¤Г® ГўГҐГ°Г±ГЁГЁ {ffffff}%s!{00ff00} ГЏГҐГ°ГҐГ§Г ГЇГіГ±ГІГЁГІГҐ ГЁГЈГ°Гі ГЁГ«ГЁ Г±ГЄГ°ГЁГЇГІ Г¤Г«Гї ГЇГ°ГЁГ¬ГҐГ­ГҐГ­ГЁГї ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГ©.', current_version), 0xFFFFFF)
+        sampAddChatMessage(string.format('[Item] {00ff00}Скрипт успешно обновлен до версии {ffffff}%s!{00ff00} Перезапустите игру или скрипт для применения изменений.', current_version), 0xFFFFFF)
         return true
     else
-        sampAddChatMessage(string.format('[Item] {ff0000}ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЇГЁГ±ГЁ Г­Г®ГўГ®ГЈГ® ГґГ Г©Г«Г  Г±ГЄГ°ГЁГЇГІГ : %s', script_path), 0xFFFFFF)
+        sampAddChatMessage(string.format('[Item] {ff0000}Ошибка при записи нового файла скрипта: %s', script_path), 0xFFFFFF)
         return false
     end
 end
 
--- ГЋГЎГ°Г ГЎГ®ГІГ·ГЁГЄ Г¤Г«Гї ГЄГ®Г¬Г Г­Г¤Г» /update
+-- Обработчик для команды /update
 sampRegisterChatCommand('itemupdate', function()
-    sampAddChatMessage(string.format('[Item] {ffffff}ГЏГ°Г®ГўГҐГ°ГЄГ  Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГ©...'), 0xFFFFFF)
+    sampAddChatMessage(string.format('[Item] {ffffff}Проверка обновлений...'), 0xFFFFFF)
     local new_script_content = checkForUpdates()
     if new_script_content then
         downloadAndUpdate(new_script_content)
     else
-        sampAddChatMessage(string.format('[Item] {00ff00}Г“ ГўГ Г± ГіГ±ГІГ Г­Г®ГўГ«ГҐГ­Г  ГЇГ®Г±Г«ГҐГ¤Г­ГїГї ГўГҐГ°Г±ГЁГї ({ffffff}%s{00ff00}).', current_version), 0xFFFFFF)
+        sampAddChatMessage(string.format('[Item] {00ff00}У вас установлена последняя версия ({ffffff}%s{00ff00}).', current_version), 0xFFFFFF)
     end
 end)
 
--- ГЂГўГІГ®Г¬Г ГІГЁГ·ГҐГ±ГЄГ Гї ГЇГ°Г®ГўГҐГ°ГЄГ  ГЇГ°ГЁ Г§Г ГЇГіГ±ГЄГҐ (Г®ГЇГ¶ГЁГ®Г­Г Г«ГјГ­Г®)
--- Г…Г±Г«ГЁ ГўГ» ГµГ®ГІГЁГІГҐ Г ГўГІГ®Г¬Г ГІГЁГ·ГҐГ±ГЄГіГѕ ГЇГ°Г®ГўГҐГ°ГЄГі, Г«ГіГ·ГёГҐ ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј os.clock() ГЁ onFrame() ГЁГ«ГЁ Г®ГІГ¤ГҐГ«ГјГ­Г»Г© effil.thread
--- ГЏГ°ГЁГ¬ГҐГ° Г± onFrame():
+-- Автоматическая проверка при запуске (опционально)
+-- Если вы хотите автоматическую проверку, лучше использовать os.clock() и onFrame() или отдельный effil.thread
+-- Пример с onFrame():
 -- local check_update_timer = os.clock()
--- local CHECK_INTERVAL = 60 -- ГЏГ°Г®ГўГҐГ°ГїГІГј ГЄГ Г¦Г¤Г»ГҐ 60 Г±ГҐГЄГіГ­Г¤
+-- local CHECK_INTERVAL = 60 -- Проверять каждые 60 секунд
 
 -- function onFrame()
 --     if os.clock() - check_update_timer > CHECK_INTERVAL then
---         check_update_timer = os.clock() -- Г‘ГЎГ°Г Г±Г»ГўГ ГҐГ¬ ГІГ Г©Г¬ГҐГ°
+--         check_update_timer = os.clock() -- Сбрасываем таймер
 --         local new_script_content = checkForUpdates()
 --         if new_script_content then
---             sampAddChatMessage(string.format('[Item] {ffff00}Г„Г®Г±ГІГіГЇГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ! Г€Г±ГЇГ®Г«ГјГ§ГіГ©ГІГҐ ГЄГ®Г¬Г Г­Г¤Гі /itemupdate Г¤Г«Гї ГіГ±ГІГ Г­Г®ГўГЄГЁ.'), 0xFFFFFF)
+--             sampAddChatMessage(string.format('[Item] {ffff00}Доступно обновление! Используйте команду /itemupdate для установки.'), 0xFFFFFF)
 --         end
 --     end
 -- end
 
 -- ======================================================================
--- ГЉГЋГЌГ…Г– ГЂГ‚Г’ГЋГЋГЃГЌГЋГ‚Г‹Г…ГЌГ€Гџ
+-- КОНЕЦ АВТООБНОВЛЕНИЯ
 -- ======================================================================
-
 
