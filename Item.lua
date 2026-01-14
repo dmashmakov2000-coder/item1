@@ -13,7 +13,7 @@ local u8 = encoding.UTF8
 
 -- Предполагаем, что имя файла скрипта - Item.lua
 local SCRIPT_CONFIG_NAME = 'Item'
-local SCRIPT_CONFIG_FILENAME = SCRIPT_CONFIG_NAME .. '.ini'
+local SCRIPT_CONFIG_FILENAME = SCRIPT_CONFIG_NAME .. 'Item.ini'
 
 -- Добавляем списки предметов из второго скрипта
 local items = {
@@ -67,7 +67,7 @@ local window = imgui.new.bool(false)
 
 function main()
     while not isSampAvailable() do wait(0) end
-    sampAddChatMessage('[telegram truck] {ffffff}Активация: /item', 0x3083ff)
+    sampAddChatMessage('[telegram truck] 11 {ffffff}Активация: /item', 0x3083ff)
     sampRegisterChatCommand('item', function() window[0] = not window[0] end)
     wait(-1)
 end
@@ -83,7 +83,7 @@ local newFrame = imgui.OnFrame(
         local sizeX, sizeY = 300, 180
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, resY / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin('telegram truck', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin('telegram truck 11', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imgui.InputText(u8('ИД Чат'), chat, ffi.sizeof(chat), imgui.InputTextFlags.Password) then
             cfg.config.chat = ffi.string(chat)
             inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
