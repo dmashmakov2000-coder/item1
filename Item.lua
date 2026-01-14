@@ -4,7 +4,7 @@ local samp = require('samp.events')
 local effil = require('effil')
 local inicfg = require('inicfg')
 local ffi = require('ffi')
-local SCRIPT_VERSION = "0.0.1" -- Текущая версия вашего скрипта
+local SCRIPT_VERSION = "0.0.2" -- Текущая версия вашего скрипта
 
 local imgui = require('mimgui')
 local encoding = require('encoding')
@@ -161,7 +161,7 @@ end
 -- АВТООБНОВЛЕНИЕ
 -- ======================================================================
 
-local UPDATE_URL = "https://raw.githubusercontent.com/ВАШ_АККАУНТ/ВАШ_РЕПОЗИТОРИЙ/main/Item.lua" -- Замените на URL вашего скрипта на GitHub
+local UPDATE_URL = "https://github.com/dmashmakov2000-coder/item1/raw/refs/heads/main/Item.lua" -- Замените на URL вашего скрипта на GitHub
 local current_version = SCRIPT_VERSION
 
 -- Функция для получения текущей версии с GitHub
