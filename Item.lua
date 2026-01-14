@@ -13,7 +13,7 @@ local u8 = encoding.UTF8
 
 -- Предполагаем, что имя файла скрипта - Item.lua
 local SCRIPT_CONFIG_NAME = 'Item'
-local SCRIPT_CONFIG_FILENAME = SCRIPT_CONFIG_NAME .. 'Item.ini'
+local SCRIPT_CONFIG_FILENAME = SCRIPT_CONFIG_NAME .. '.ini'
 
 -- Добавляем списки предметов из второго скрипта
 local items = {
@@ -67,7 +67,7 @@ local window = imgui.new.bool(false)
 
 function main()
     while not isSampAvailable() do wait(0) end
-    sampAddChatMessage('[telegram truck] 11 {ffffff}Активация: /item', 0x3083ff)
+    sampAddChatMessage('[telegram truck] {ffffff}Активация: /item', 0x3083ff)
     sampRegisterChatCommand('item', function() window[0] = not window[0] end)
     wait(-1)
 end
@@ -83,7 +83,7 @@ local newFrame = imgui.OnFrame(
         local sizeX, sizeY = 300, 180
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, resY / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin('telegram truck 11', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin('telegram truck', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imgui.InputText(u8('ИД Чат'), chat, ffi.sizeof(chat), imgui.InputTextFlags.Password) then
             cfg.config.chat = ffi.string(chat)
             inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
@@ -161,7 +161,7 @@ end
 -- АВТООБНОВЛЕНИЕ
 -- ======================================================================
 
-local UPDATE_URL = "https://github.com/dmashmakov2000-coder/item1/raw/refs/heads/main/Item.lua" -- Замените на URL вашего скрипта на GitHub
+local UPDATE_URL = "https://github.com/dmashmakov2000-coder/item1/raw/refs/heads/main/Item.lua"
 local current_version = SCRIPT_VERSION
 
 -- Функция для получения текущей версии с GitHub
@@ -174,60 +174,59 @@ local function checkForUpdates()
         local remote_version = remote_script_content:match('local SCRIPT_VERSION = "(.-)"')
 
         if remote_version and remote_version ~= current_version then
-            print(string.format('[Item] {ffff00}Доступно обновление! {ffffff}Текущая версия: %s, Новая версия: %s', current_version, remote_version))
+            sampAddChatMessage(string.format('[Item] {ffff00}Доступно обновление! {ffffff}Текущая версия: %s, Новая версия: %s', current_version, remote_version), 0xFFFFFF)
             return remote_script_content -- Возвращаем содержимое нового скрипта
         end
     else
-        print(string.format('[Item] {ff0000}Ошибка при проверке обновлений. Код: %s', status))
+        sampAddChatMessage(string.format('[Item] {ff0000}Ошибка при проверке обновлений. Код: %s', status), 0xFFFFFF)
     end
     return nil
 end
 
 -- Функция для скачивания и замены файла скрипта
 local function downloadAndUpdate(new_script_content)
-    local _, _, filename = debug.getinfo(1, "S").source:find("@(.+)")
-    local script_path = filename -- Путь к текущему файлу скрипта
+    local script_path = thisScript().path -- Более надежный способ получить путь к скрипту
 
     local file = io.open(script_path, "w")
     if file then
         file:write(new_script_content)
         file:close()
-        print(string.format('[Item] {00ff00}Скрипт успешно обновлен до версии {ffffff}%s!{00ff00} Перезапустите игру или скрипт для применения изменений.', current_version))
+        sampAddChatMessage(string.format('[Item] {00ff00}Скрипт успешно обновлен до версии {ffffff}%s!{00ff00} Перезапустите игру или скрипт для применения изменений.', current_version), 0xFFFFFF)
         return true
     else
-        print(string.format('[Item] {ff0000}Ошибка при записи нового файла скрипта: %s', script_path))
+        sampAddChatMessage(string.format('[Item] {ff0000}Ошибка при записи нового файла скрипта: %s', script_path), 0xFFFFFF)
         return false
     end
 end
 
 -- Обработчик для команды /update
 sampRegisterChatCommand('itemupdate', function()
-    print(string.format('[Item] {ffffff}Проверка обновлений...'))
+    sampAddChatMessage(string.format('[Item] {ffffff}Проверка обновлений...'), 0xFFFFFF)
     local new_script_content = checkForUpdates()
     if new_script_content then
-        -- Здесь можно добавить запрос подтверждения у пользователя перед скачиванием
-        -- Для простоты, сразу скачиваем
         downloadAndUpdate(new_script_content)
     else
-        print(string.format('[Item] {00ff00}У вас установлена последняя версия ({ffffff}%s{00ff00}).', current_version))
+        sampAddChatMessage(string.format('[Item] {00ff00}У вас установлена последняя версия ({ffffff}%s{00ff00}).', current_version), 0xFFFFFF)
     end
 end)
 
 -- Автоматическая проверка при запуске (опционально)
--- Вы можете раскомментировать этот блок, если хотите, чтобы проверка проходила сама
--- local check_update_timer = imgui.SetTimer(60000) -- Проверять каждые 60 секунд (60000 ms)
--- imgui.OnTick(function()
---     if imgui.IsTimerReady(check_update_timer) then
+-- Если вы хотите автоматическую проверку, лучше использовать os.clock() и onFrame() или отдельный effil.thread
+-- Пример с onFrame():
+-- local check_update_timer = os.clock()
+-- local CHECK_INTERVAL = 60 -- Проверять каждые 60 секунд
+
+-- function onFrame()
+--     if os.clock() - check_update_timer > CHECK_INTERVAL then
+--         check_update_timer = os.clock() -- Сбрасываем таймер
 --         local new_script_content = checkForUpdates()
 --         if new_script_content then
---             -- Можно добавить уведомление в чат, что доступно обновление,
---             -- а затем предоставить команду /itemupdate для его установки.
---             -- Или, если вы уверены, можно сразу скачать.
---             print(string.format('[Item] {ffff00}Доступно обновление! Используйте команду /itemupdate для установки.'))
+--             sampAddChatMessage(string.format('[Item] {ffff00}Доступно обновление! Используйте команду /itemupdate для установки.'), 0xFFFFFF)
 --         end
 --     end
--- end)
+-- end
 
 -- ======================================================================
 -- КОНЕЦ АВТООБНОВЛЕНИЯ
 -- ======================================================================
+
