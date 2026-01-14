@@ -4,7 +4,7 @@ local samp = require('samp.events')
 local effil = require('effil')
 local inicfg = require('inicfg')
 local ffi = require('ffi')
-local SCRIPT_VERSION = "0.0.2" -- Текущая версия вашего скрипта
+local SCRIPT_VERSION = "0.1.1" -- Текущая версия вашего скрипта
 
 local imgui = require('mimgui')
 local encoding = require('encoding')
@@ -83,7 +83,7 @@ local newFrame = imgui.OnFrame(
         local sizeX, sizeY = 300, 180
         imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, resY / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(sizeX, sizeY), imgui.Cond.FirstUseEver)
-        imgui.Begin('telegram truck', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
+        imgui.Begin('telegram truck111', window, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse)
         if imgui.InputText(u8('ИД Чат'), chat, ffi.sizeof(chat), imgui.InputTextFlags.Password) then
             cfg.config.chat = ffi.string(chat)
             inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
@@ -93,7 +93,7 @@ local newFrame = imgui.OnFrame(
             inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
         end
 
-        if imgui.Checkbox(u8('Добавление предмета'), itemAdding) then
+        if imgui.Checkbox(u8('Добавление 1111'), itemAdding) then
             cfg.config.itemAdding = itemAdding[0]
             inicfg.save(cfg, SCRIPT_CONFIG_FILENAME) -- Изменено на SCRIPT_CONFIG_FILENAME
         end
