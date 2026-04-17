@@ -31,7 +31,7 @@ local effil_ok, effil = check_lib('effil')
 local requests_ok, requests_lib = check_lib('requests')
 
 -- === КОНФИГУРАЦИЯ СКРИПТА ===
-local SCRIPT_VERSION = "0.0.4.3" -- Обновляем версию до 0.0.4.4 после исправлений
+local SCRIPT_VERSION = "0.0.4.4" -- Обновляем версию до 0.0.4.4 после исправлений
 local UPDATE_URL = "https://raw.githubusercontent.com/dmashmakov2000-coder/item11/main/Item.lua" -- URL для автообновления
 local CFG_FILENAME = 'Script [TM].ini'
 
@@ -41,11 +41,8 @@ local DEFAULT_API = "https://api.telegram.org"
 
 -- Информация об обновлениях (для всплывающего окна)
 local UPDATE_INFO = [[
-0.0.4.3:
-- Исправлены критические ошибки, из-за которых скрипт не запускался.
-- Улучшена обработка ошибок отправки Telegram-сообщений.
-- Рабочий интерфейс облочного сервиса для обхода блокировок.
-- Добавлена галочка Включения обхода в настройках
+0.0.4.4:
+- Исправлен PayDay
 
 ]]
 
@@ -5475,31 +5472,41 @@ function samp.onServerMessage(color, text)
         end
     end
  
-    if storage[0] then
-        if text:find("Добавлен новый предмет") or text:find("Вы забрали предмет") then
-            sendTelegramMessage(text)
-        end
-    end
-
     if payday[0] then
-        if color and text:find('Банковский чек') then
+        -- 1. Ищем начало чека
+        if text:find('БАНКОВСКИЙ ЧЕК') or text:find('Банковский чек') then
             getPayday = true
             listPayday = {}
-            paydayTimeout = os.time() + PAYDAY_TIMEOUT_DURATION
-            table.insert(listPayday, text)
+            paydayTimeout = os.time() + 5
+            
+            -- Вместо кодов пишем просто текст, чтобы не было "???"
+            table.insert(listPayday, "PayDay | БАНКОВСКИЙ ЧЕК")
+            
         elseif getPayday then
-            table.insert(listPayday, text)
+            -- 2. Очищаем строку от мусора
+            local cleanLine = text:gsub('{......}', '') -- Удаляем цвета
+            cleanLine = cleanLine:gsub('?', '$'):gsub('?', 'bc') -- Меняем иконки на текст
+            
+            -- Добавляем строку в таблицу
+            table.insert(listPayday, cleanLine)
+            
+            -- 3. Условие завершения:
+            -- Должна быть линия ==== И в таблице должно быть уже больше 4 строк 
+            -- (чтобы не закрылось на самой первой линии)
+            if (text:find('==========') or text:find('__________')) and #listPayday > 4 then
+                sendTelegramMessage(table.concat(listPayday, '\n'))
+                getPayday = false 
+            end
         end
 
-        if color and text:find('__________________________________________________________________________') then
-            if getPayday then
+        -- Защита: если за 5 секунд чек не собрался полностью, отправляем что есть
+        if getPayday and os.time() > paydayTimeout then
+            if #listPayday > 2 then
                 sendTelegramMessage(table.concat(listPayday, '\n'))
             end
-   getPayday = false 
-        elseif getPayday and os.time() > paydayTimeout then
-            sampAddChatMessage("{FF0000}[TM] Таймаут Payday, отправка неполных данных.", 0xFFFFFF)
-            sendTelegramMessage(table.concat(listPayday, '\n'))
             getPayday = false 
         end
     end
+
+
 end
